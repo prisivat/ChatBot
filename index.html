@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Chatbot</title>
+    <style>
+        body {
+            background: linear-gradient(to right, #e0f7fa, #80deea); /* Winter colors */
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .chat-container {
+            background-color: #ffffff;
+            border-radius: 25px; /* Curved borders */
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+            width: 450px;
+            max-width: 90%;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .chat-header {
+            font-size: 24px;
+            font-weight: bold;
+            color: #00796b;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chat-header img {
+            width: 30px;
+            height: 30px;
+            margin-right: 10px;
+        }
+
+        .symbol-container {
+            display: flex;
+            justify-content: space-evenly;
+            margin-bottom: 15px;
+        }
+
+        .symbol-container img {
+            width: 40px;
+            height: 40px;
+        }
+
+        .chat-input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 20px;
+            border: 2px solid #80cbc4;
+            margin-bottom: 10px;
+            outline: none;
+            font-size: 16px;
+        }
+
+        .chat-button {
+            background-color: #00796b;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .chat-button:hover {
+            background-color: #004d40;
+        }
+
+        .answer-container {
+            margin-top: 20px;
+            color: #004d40;
+        }
+
+        .spinner {
+            display: none;
+            border: 4px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 4px solid #00796b;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #80cbc4;
+        }
+
+        footer img {
+            width: 20px;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="chat-container">
+        <div class="chat-header">
+            <img src="https://img.icons8.com/color/48/000000/medical-doctor.png" alt="Medical Icon">
+            Medical Chatbot
+        </div>
+
+        <!-- Symbol Section -->
+        <div class="symbol-container">
+            <img src="https://img.icons8.com/color/48/000000/doctor-male.png" alt="Doctor Icon">
+            <img src="https://img.icons8.com/color/48/000000/patient-oxygen-mask.png" alt="Patient Icon">
+        </div>
+
+        <!-- Chat Input and Button -->
+        <input type="text" class="chat-input" id="user-query" placeholder="Ask your medical question...">
+        <button class="chat-button" onclick="askQuestion()">Ask</button>
+
+        <div class="spinner" id="loading-spinner"></div>
+
+        <div class="answer-container" id="answer-container">
+            <!-- Answer will appear here -->
+        </div>
+    </div>
+
+    <footer>
+        <p>Powered by AI <img src="https://img.icons8.com/doodle/48/000000/snowflake.png" alt="Winter Symbol"></p>
+    </footer>
+
+    <script>
+        function askQuestion() {
+            const query = document.getElementById('user-query').value;
+            const spinner = document.getElementById('loading-spinner');
+            const answerContainer = document.getElementById('answer-container');
+
+            if (!query) {
+                alert("Please enter a question!");
+                return;
+            }
+
+            spinner.style.display = 'block';
+            answerContainer.innerHTML = '';
+
+            fetch('/ask', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query: query })
+            })
+            .then(response => response.json())
+            .then(data => {
+                spinner.style.display = 'none';
+                if (data.error) {
+                    answerContainer.innerHTML = `<p style="color: red;">Error: ${data.error}</p>`;
+                } else {
+                    answerContainer.innerHTML = `<p>${data.answer}</p>`;
+                }
+            })
+            .catch(error => {
+                spinner.style.display = 'none';
+                answerContainer.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+            });
+        }
+    </script>
+
+</body>
+</html>
